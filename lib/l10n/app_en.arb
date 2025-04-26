@@ -1,0 +1,48 @@
+{
+    "home": "Home",
+    "movements": "Movements",
+    "stadistics": "Statistics",
+    "income": "Income",
+    "expenses": "Expenses",
+    "balance": "Balance",
+    "categories": "Categories",
+    "category": "Category",
+
+    "addIncome": "Add income",
+    "addExpense": "Add expense",
+    "title": "Title",
+    "titleHint": "Transaction title",
+    "quantity": "Amount",
+    "quantityHint": "Enter the amount",
+    "category": "Category",
+    "date": "Date",
+    "dateHint": "Select a date",
+    "description": "Description",
+    "descriptionHint": "Add a description (optional)",
+    "add": "Add",
+
+    "titleError": "Please enter a value",
+    "quantityError": "Please enter a valid amount",
+    "categoryError": "Please select a category",
+    "dateError": "Please select a date",
+
+    "correctAdding": "Transaction successfully created",
+
+    "noTransactions": "No transactions recorded",
+
+    "all": "All",
+    "year": "Year",
+    "yearHint": "Select a year", 
+
+    "house": "Housing",
+    "food": "Food",
+    "leisure": "Leisure",
+    "transport": "Transport",
+    "selfcare": "Personal care",
+    "education": "Education",
+    "salary": "Salary",
+    "gift": "Gifts",
+    "refund": "Refund",
+    "scholarship": "Scholarship",
+    "others": "Others"
+}

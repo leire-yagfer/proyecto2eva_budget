@@ -1,0 +1,48 @@
+{
+    "home": "Home",
+    "movements": "Movimientos",
+    "stadistics": "Estadísticas",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "balance": "Balance",
+    "categories": "Categorías",
+    "category": "Categoría",
+
+    "addIncome": "Añadir ingreso",
+    "addExpense": "Añadir gasto",
+    "title": "Título",
+    "titleHint": "Título de la transacción",
+    "quantity": "Cantidad",
+    "quantityHint": "Ingresa la cantidad",
+    "category": "Categoría",
+    "date": "Fecha",
+    "dateHint": "Selecciona la fecha",
+    "description": "Descripción",
+    "descriptionHint": "Añade una descripción (opcional)",
+    "add": "Añadir",
+
+    "titleError": "Por favor, ingrese un valor",
+    "quantityError": "Por favor, ingresa valores adecuados",
+    "categoryError": "Por favor, selecciona una categoría",
+    "dateError": "Por favor, selecciona una fecha",
+
+    "correctAdding": "Transacción creada con éxito",
+
+    "noTransactions": "No hay transacciones registradas",
+
+    "all": "Todos",
+    "year": "Año",
+    "yearHint": "Selecciona un año", 
+
+    "house": "Vivienda",
+    "food": "Alimentación",
+    "leisure": "Ocio",
+    "transport": "Transporte",
+    "selfcare": "Cuidado personal",
+    "education": "Educación",
+    "salary": "Salario",
+    "gift": "Regalos",
+    "refund": "Reembolso",
+    "scholarship": "Becas",
+    "others": "Otros"
+}
