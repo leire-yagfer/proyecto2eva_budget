@@ -8,6 +8,7 @@ class ThemeProvider extends ChangeNotifier {
         //General
         "textBlackWhite": (isLightModeActive) ? Colors.black : Colors.white,
         "buttonBlackWhite": (isLightModeActive) ? Colors.black : Colors.white,
+        "buttonWhiteBlack": (isLightModeActive) ? Colors.white : Colors.black,
         "fixedBlack": Colors.black,
         "fixedWhite": Colors.white,
         "fixedLightGrey": Colors.grey,

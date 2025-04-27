@@ -9,7 +9,7 @@ class ReusableMainButton extends StatelessWidget {
   final VoidCallback onClick;
   String?
       textButton; //porque si está cargando quiero que salga el icono de cargando
-  Color colorButton;
+  String colorButton;
   Widget? child;
 
   ReusableMainButton(
@@ -27,7 +27,7 @@ class ReusableMainButton extends StatelessWidget {
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(500, 80), //*
-          backgroundColor: colorButton,
+          backgroundColor: context.watch<ThemeProvider>().palette()[colorButton]!,
         ),
         onPressed: onClick,
         child: (textButton != null)

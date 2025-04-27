@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:proyecto2eva_budget/view/resumen_balance.dart';
-import 'package:proyecto2eva_budget/view/resumen_gastos.dart';
-import 'package:proyecto2eva_budget/view/resumen_ingresos.dart';
+import 'package:proyecto2eva_budget/view/estadisticas/resumen_balance.dart';
+import 'package:proyecto2eva_budget/view/estadisticas/resumen_gastos.dart';
+import 'package:proyecto2eva_budget/view/estadisticas/resumen_ingresos.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 

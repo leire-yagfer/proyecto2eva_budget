@@ -30,8 +30,7 @@ class Principal extends StatelessWidget {
                     Provider.of<ThemeProvider>(context, listen: false)
                         .palette()['greenButton']!);
               },
-              colorButton:
-                  context.watch<ThemeProvider>().palette()['greenButton']!,
+              colorButton: 'greenButton',
               textButton: AppLocalizations.of(context)!.addIncome,
             ),
             SizedBox(height: MediaQuery.of(context).size.height * 0.04),
@@ -44,8 +43,7 @@ class Principal extends StatelessWidget {
                     Provider.of<ThemeProvider>(context, listen: false)
                         .palette()['redButton']!);
               },
-              colorButton:
-                  context.watch<ThemeProvider>().palette()['redButton']!,
+              colorButton: 'redButton',
               textButton: AppLocalizations.of(context)!.addExpense,
             ),
           ],
@@ -90,7 +88,8 @@ class Principal extends StatelessWidget {
               child: Center(
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.5,
-                  padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
+                  padding:
+                      EdgeInsets.all(MediaQuery.of(context).size.width * 0.02),
                   decoration: BoxDecoration(
                     color: color,
                     borderRadius: BorderRadius.circular(15),
@@ -291,9 +290,7 @@ class Principal extends StatelessWidget {
                               );
                             }
                           },
-                          colorButton: context
-                              .watch<ThemeProvider>()
-                              .palette()['fixedWhite']!,
+                          colorButton: 'fixedWhite',
                           textButton: AppLocalizations.of(context)!.add,
                         ),
                       ],
