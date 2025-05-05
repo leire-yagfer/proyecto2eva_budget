@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/model/models/dao/transaccionesdao.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 ///Clase que muestra los movimientos cuyo tipo es gastos en la base de datos en un gráfico circular divido con los colores de las categorías a las que pertenece
@@ -32,9 +33,11 @@ class _GastosTabState extends State<GastosTab> {
       return;
     }
 
-    final result = await transaccionDao.obtenerGastosPorCategoria(
+    final result = await transaccionDao.obtenerIngresosGastosPorCategoria(
       filter: selectedFilter,
       year: selectedYear,
+      tipoTransaccion: 'Gasto',
+      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa
     );
 
     Map<String, double> tempData = {};
@@ -43,7 +46,7 @@ class _GastosTabState extends State<GastosTab> {
     for (var row in result) {
       String categoria = row['nombre'] as String;
       double total = (row['total'] as num).toDouble();
-      String colorHex = row['colorcategoria'] as String;
+      String colorHex = row['color'] as String;
 
       tempData[categoria] = total;
       tempColor[categoria] = _hexToColor(colorHex);
@@ -164,7 +167,7 @@ class GraficoGastos extends StatelessWidget {
               sections: dataMap.entries.map((entry) {
                 return PieChartSectionData(
                   value: entry.value,
-                  title: "${entry.key}\n${entry.value.toStringAsFixed(2)}€",
+                  title: "${entry.key}\n${entry.value.toStringAsFixed(2)} ${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa}",
                   color: colorMap[entry.key],
                   radius: 80,
                   titleStyle: TextStyle(

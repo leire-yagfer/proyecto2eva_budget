@@ -7,6 +7,7 @@ import 'package:proyecto2eva_budget/model/models/categoria.dart';
 import 'package:proyecto2eva_budget/model/services/db_helper.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusabletxtformfield.dart';
+import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 ///Clase que se muestra al iniciar la app y que incluye la inserción de nuevos ingresos o gastos
@@ -23,29 +24,33 @@ class Principal extends StatelessWidget {
           children: [
             //Botón para agregar un ingreso
             ReusableMainButton(
-              onClick: () {
-                _showOverlay(
-                    context,
-                    AppLocalizations.of(context)!.addIncome,
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .palette()['greenButton']!);
-              },
-              colorButton: 'greenButton',
-              textButton: AppLocalizations.of(context)!.addIncome,
-            ),
+                onClick: () {
+                  _showOverlay(
+                      context,
+                      AppLocalizations.of(context)!.addIncome,
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .palette()['greenButton']!);
+                },
+                colorButton: 'greenButton',
+                textButton: AppLocalizations.of(context)!.addIncome,
+                colorTextButton: 'buttonBlackWhite',
+                buttonHeight: 0.1,
+                buttonWidth: 0.6),
             SizedBox(height: MediaQuery.of(context).size.height * 0.04),
             //Botón para agregar un gasto
             ReusableMainButton(
-              onClick: () {
-                _showOverlay(
-                    context,
-                    AppLocalizations.of(context)!.addExpense,
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .palette()['redButton']!);
-              },
-              colorButton: 'redButton',
-              textButton: AppLocalizations.of(context)!.addExpense,
-            ),
+                onClick: () {
+                  _showOverlay(
+                      context,
+                      AppLocalizations.of(context)!.addExpense,
+                      Provider.of<ThemeProvider>(context, listen: false)
+                          .palette()['redButton']!);
+                },
+                colorButton: 'redButton',
+                textButton: AppLocalizations.of(context)!.addExpense,
+                colorTextButton: 'buttonBlackWhite',
+                buttonHeight: 0.1,
+                buttonWidth: 0.6),
           ],
         ),
       ),
@@ -231,17 +236,6 @@ class Principal extends StatelessWidget {
                           labelText: AppLocalizations.of(context)!.description,
                           hintText:
                               AppLocalizations.of(context)!.descriptionHint,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return AppLocalizations.of(context)!
-                                  .quantityError;
-                            }
-                            if (double.tryParse(value) == null) {
-                              return AppLocalizations.of(context)!
-                                  .quantityError;
-                            }
-                            return null;
-                          },
                         ),
 
                         SizedBox(
@@ -249,50 +243,62 @@ class Principal extends StatelessWidget {
 
                         //Botón para agregar la transacción
                         ReusableMainButton(
-                          onClick: () async {
-                            if (_formKey.currentState!.validate()) {
-                              //Si el formulario es válido, proceder con la transacción
-                              //Recoger los datos
-                              String titulo = _tituloController.text;
-                              double cantidad =
-                                  double.parse(_cantidadController.text);
-                              String fecha = _dateController.text;
-                              String descripcion = _descripcionController.text;
-                              int idUsuario =
-                                  1; //Suponiendo que hay un usuario logueado con id=1
+                            onClick: () async {
+                              if (_formKey.currentState!.validate()) {
+                                //Si el formulario es válido, proceder con la transacción
+                                //Recoger los datos
+                                String titulo = _tituloController.text;
+                                double cantidad =
+                                    double.parse(_cantidadController.text);
+                                String fecha = _dateController.text;
+                                String descripcion =
+                                    _descripcionController.text;
+                                int idUsuario =
+                                    1; //Suponiendo que hay un usuario logueado con id=1
 
-                              //Crear transacción
-                              Map<String, dynamic> nuevaTransaccion = {
-                                'titulo_transaccion': titulo,
-                                'fecha': fecha,
-                                'categoria': selectedCategoria,
-                                'importe': cantidad,
-                                'descripcion':
-                                    descripcion.isNotEmpty ? descripcion : null,
-                                'id_usuario': idUsuario,
-                              };
+                                //Crear transacción
+                                Map<String, dynamic> nuevaTransaccion = {
+                                  'titulo_transaccion': titulo,
+                                  'fecha': fecha,
+                                  'categoria': selectedCategoria,
+                                  'importe': cantidad,
+                                  'divisaPrincipal': context
+                                      .read<ProviderAjustes>()
+                                      .divisaEnUso
+                                      .codigo_divisa,
+                                  'descripcion': descripcion.isNotEmpty
+                                      ? descripcion
+                                      : null,
+                                  'id_usuario': idUsuario,
+                                };
 
-                              //Insertar transacción en la base de datos
-                              await TransaccionDao()
-                                  .insertarTransaccion(nuevaTransaccion);
+                                //Insertar transacción en la base de datos
+                                await TransaccionDao()
+                                    .insertarTransaccion(nuevaTransaccion);
 
-                              //Cerrar el diálogo
-                              Navigator.of(context).pop();
+                                context
+                                    .read<ProviderAjustes>()
+                                    .cargarTransacciones();
 
-                              //Mostrar SnackBar de confirmación
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(AppLocalizations.of(context)!
-                                      .correctAdding),
-                                  duration: Duration(
-                                      seconds: 3), //duración del SnackBar
-                                ),
-                              );
-                            }
-                          },
-                          colorButton: 'fixedWhite',
-                          textButton: AppLocalizations.of(context)!.add,
-                        ),
+                                //Cerrar el diálogo
+                                Navigator.of(context).pop();
+
+                                //Mostrar SnackBar de confirmación
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!
+                                        .correctAdding),
+                                    duration: Duration(
+                                        seconds: 3), //duración del SnackBar
+                                  ),
+                                );
+                              }
+                            },
+                            colorButton: 'fixedWhite',
+                            textButton: AppLocalizations.of(context)!.add,
+                            colorTextButton: 'buttonBlackWhite',
+                            buttonHeight: 0.09,
+                            buttonWidth: 0.5),
                       ],
                     ),
                   ),

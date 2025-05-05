@@ -5,11 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
+import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/loginregister.dart';
 import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await APIUtils.get_all_currencies();
+
   //MultiProvider para los cambios
   runApp(
     MultiProvider(
@@ -46,7 +53,17 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
               brightness: (context.watch<ThemeProvider>().isLightModeActive)
                   ? Brightness.light
-                  : Brightness.dark),
+                  : Brightness.dark,
+              scaffoldBackgroundColor: context
+                  .watch<ThemeProvider>()
+                  .palette()['scaffoldBackground']!,
+              appBarTheme: AppBarTheme(
+                backgroundColor: context
+                    .watch<ThemeProvider>()
+                    .palette()['scaffoldBackground']!,
+                elevation: 0,
+              ),
+              textTheme: TextTheme(bodyMedium: GoogleFonts.notoSans())),
 
           localizationsDelegates: const [
             AppLocalizations.delegate,
@@ -59,7 +76,7 @@ class _MyAppState extends State<MyApp> {
             Locale('es'),
             Locale('en'),
           ],
-          home: LoginSignupPage(),
+          home: MyHomePage(),
         );
       },
     );

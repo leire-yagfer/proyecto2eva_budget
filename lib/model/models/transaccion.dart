@@ -1,10 +1,14 @@
+import 'package:proyecto2eva_budget/model/models/divisa.dart';
+import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
+
 ///Clase que representa una transacción
 class Transaccion {
   final int id;
   final String tituloTransaccion;
   final String fecha;
   final String categoria;
-  final double importe;
+  double importe;
+  final Divisa divisaPrincipal;
   final String? descripcion;
   final int idUsuario;
 
@@ -14,6 +18,7 @@ class Transaccion {
     required this.fecha,
     required this.categoria,
     required this.importe,
+    required this.divisaPrincipal,
     this.descripcion,
     required this.idUsuario,
   });
@@ -26,6 +31,7 @@ class Transaccion {
       fecha: map['fecha'],
       categoria: map['categoria'],
       importe: map['importe'],
+      divisaPrincipal:  APIUtils.getFromList(map['divisaPrincipal'])!, //divisa en la que se trabaja
       descripcion: map['descripcion'],
       idUsuario: map['id_usuario'],
     );
@@ -38,6 +44,7 @@ class Transaccion {
       'fecha': fecha,
       'categoria': categoria,
       'importe': importe,
+      'divisaPrincipal': divisaPrincipal.codigo_divisa,
       'descripcion': descripcion,
       'id_usuario': idUsuario,
     };

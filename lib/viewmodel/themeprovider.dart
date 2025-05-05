@@ -6,15 +6,16 @@ class ThemeProvider extends ChangeNotifier {
   //Los sigueintes colores es siguiendo el modo claro de la app (isLightModeActive == true)
   Map<String, Color> palette() => {
         //General
-        "textBlackWhite": (isLightModeActive) ? Colors.black : Colors.white,
-        "buttonBlackWhite": (isLightModeActive) ? Colors.black : Colors.white,
-        "buttonWhiteBlack": (isLightModeActive) ? Colors.white : Colors.black,
-        "fixedBlack": Colors.black,
-        "fixedWhite": Colors.white,
+        "scaffoldBackground": (isLightModeActive) ? Color.fromARGB(255, 242, 242, 247) : Color.fromARGB(255, 28, 28, 30),
+        "textBlackWhite": (isLightModeActive) ? Color.fromARGB(222, 0, 0, 0) : Color.fromARGB(255, 229, 229, 234),
+        "buttonBlackWhite": (isLightModeActive) ? Color.fromARGB(222, 0, 0, 0) : Color.fromARGB(255, 229, 229, 234),
+        "buttonWhiteBlack": (isLightModeActive) ? Color.fromARGB(255, 229, 229, 234) : Color.fromARGB(222, 0, 0, 0),
+        "fixedBlack": Color.fromARGB(222, 0, 0, 0),
+        "fixedWhite": Color.fromARGB(255, 229, 229, 234),
         "fixedLightGrey": Colors.grey,
         //Navegación inferior y pestañas
         "selectedItem": Colors.pink,
-        "unselectedItem": (isLightModeActive) ? Colors.black : Colors.white,
+        "unselectedItem": (isLightModeActive) ? Color.fromARGB(222, 0, 0, 0) : Color.fromARGB(255, 229, 229, 234),
         "labelColor": Colors.pink,
         //Botones
         "greenButton": Color.fromARGB(255, 116, 212, 148),

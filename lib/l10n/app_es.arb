@@ -30,6 +30,13 @@
     "categories": "Categorías",
     "category": "Categoría",
 
+    "logout": "Cerrar sesión",
+
+    "logoutdialogtitle": "Confirmar cierre de sesión",
+    "logoutdialogcontent": "¿Estás seguro de que deseas cerrar sesión?",
+    "cancel": "Cancelar",
+    "accept": "Aceptar",
+
     "addIncome": "Añadir ingreso",
     "addExpense": "Añadir gasto",
     "title": "Título",
@@ -51,6 +58,14 @@
     "correctAdding": "Transacción creada con éxito",
 
     "noTransactions": "No hay transacciones registradas",
+
+    "editTransaction": "Editar transacción",
+    "title": "Título",
+    "amount": "Importe",
+    "date": "Fecha",
+    "cancel": "Cancelar",
+    "accept": "Aceptar",
+    "errorUpdatingTransaction": "Error al actualizar la transacción",
 
     "all": "Todos",
     "year": "Año",

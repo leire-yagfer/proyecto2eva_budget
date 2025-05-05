@@ -30,6 +30,13 @@
     "categories": "Categories",
     "category": "Category",
 
+    "logout": "Log out",
+
+    "logoutdialogtitle": "Confirm log out",
+    "logoutdialogcontent": "Are you sure you want to log out?",
+    "cancel": "Cancel",
+    "accept": "Accept",
+
     "addIncome": "Add income",
     "addExpense": "Add expense",
     "title": "Title",
@@ -51,6 +58,14 @@
     "correctAdding": "Transaction successfully created",
 
     "noTransactions": "No transactions recorded",
+
+    "editTransaction": "Edit transaction",
+    "title": "Title",
+    "amount": "Amount",
+    "date": "Date",
+    "cancel": "Cancel",
+    "accept": "Accept",
+    "errorUpdatingTransaction": "Error updating transaction",
 
     "all": "All",
     "year": "Year",

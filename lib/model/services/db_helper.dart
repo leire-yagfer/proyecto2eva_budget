@@ -18,6 +18,7 @@ class DBHelper {
     final databasePath = await getDatabasesPath();
     final path = join(databasePath, 'transacciones.db');
     print(path); //útil para ver la base de datos
+    //await deleteDatabase(path);
 
     //Abrir la base de datos y crear las tablas
     return openDatabase(path, version: 1, onCreate: (db, version) async {
@@ -45,6 +46,7 @@ class DBHelper {
         fecha DATE NOT NULL,
         categoria TEXT NOT NULL,
         importe REAL NOT NULL,
+        divisaPrincipal TEXT NOT NULL,
         descripcion TEXT,
         id_usuario INTEGER NOT NULL,
         FOREIGN KEY (categoria) REFERENCES CATEGORIA (nombre) ON DELETE CASCADE,
@@ -173,6 +175,7 @@ class DBHelper {
             'fecha': '2025-02-04',
             'categoria': 'Alimentación',
             'importe': 50.0,
+            'divisaPrincipal': 'EUR',
             'descripcion': 'Compra en supermercado',
             'id_usuario': 1
           },
@@ -185,6 +188,7 @@ class DBHelper {
             'fecha': '2025-02-03',
             'categoria': 'Salario',
             'importe': 1200.0,
+            'divisaPrincipal': 'EUR',
             'descripcion': 'Compra en supermercado',
             'id_usuario': 1
           },
@@ -197,6 +201,7 @@ class DBHelper {
             'fecha': '2025-02-03',
             'categoria': 'Becas',
             'importe': 300.0,
+            'divisaPrincipal': 'EUR',
             'descripcion': 'Beca por ser estudiante',
             'id_usuario': 1
           },
@@ -209,6 +214,7 @@ class DBHelper {
             'fecha': '2024-02-03',
             'categoria': 'Cuidado personal',
             'importe': 40.0,
+            'divisaPrincipal': 'EUR',
             'descripcion': 'Recibo mensual gimnasio',
             'id_usuario': 1
           },

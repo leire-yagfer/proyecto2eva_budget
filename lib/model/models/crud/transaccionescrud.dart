@@ -29,4 +29,15 @@ class TransaccionCRUD {
     );
     print('TRANSACCIÓN con id $id eliminada');
   }
+
+  ///Actualizar una transacción existente en la base de datos
+  Future<void> actualizarTransaccion(Transaccion transaccion) async {
+    final db = await DBHelper().abrirBD(); //Abro la base de datos
+    await db.update(
+      'transacciones', //Nombre de la tabla
+      transaccion.toMap(), //Datos actualizados como mapa
+      where: 'id = ?', //Condición de actualización
+      whereArgs: [transaccion.id], //ID de la transacción a actualizar
+    );
+  }
 }

@@ -1,8 +1,8 @@
 // ignore_for_file: no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
-//import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-//import 'package:proyecto2eva_budget/view/home.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/logindialog.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/signupdialog.dart';
 
@@ -23,7 +23,7 @@ mixin LoginLogoutDialog {
         builder: (context) => SignupDialog());
   }
 
-  /*
+  
   //función para cerrar sesión
   void showLogOutDialog(BuildContext context) {
     showDialog(
@@ -53,6 +53,6 @@ mixin LoginLogoutDialog {
         );
       },
     );
-  }*/
+  }
 }
 

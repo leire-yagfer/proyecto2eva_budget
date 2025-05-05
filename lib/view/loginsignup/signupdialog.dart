@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusablerowloginregister.dart';
 import 'package:proyecto2eva_budget/view/principal.dart';
-import 'package:proyecto2eva_budget/view/loginsignup/mixinloginlogout.dart';
+import 'package:proyecto2eva_budget/view/loginsignup/mixinloginregisterlogout.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 //clase que implementa el dopDownButton de selección de país, ya que es de tipo stateful
@@ -163,16 +163,18 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
                     height: MediaQuery.of(context).size.height * 0.03,
                   ),
                   ReusableMainButton(
-                    onClick: () {
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => Principal()));
-                    },
-                    textButton: AppLocalizations.of(context)!.register,
-                    colorButton: 'buttonWhiteBlack',
-                  ),
+                      onClick: () {
+                        Navigator.pop(context);
+                        Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => Principal()));
+                      },
+                      textButton: AppLocalizations.of(context)!.register,
+                      colorButton: 'buttonWhiteBlack',
+                      colorTextButton: 'buttonBlackWhite',
+                      buttonHeight: 0.08,
+                      buttonWidth: 0.5),
                 ],
               ),
             ),

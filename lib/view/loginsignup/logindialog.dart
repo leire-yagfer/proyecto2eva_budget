@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusablerowloginregister.dart';
 import 'package:proyecto2eva_budget/view/principal.dart';
-import 'package:proyecto2eva_budget/view/loginsignup/mixinloginlogout.dart';
+import 'package:proyecto2eva_budget/view/loginsignup/mixinloginregisterlogout.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 class LogInDialog extends StatefulWidget {
@@ -90,13 +90,17 @@ class _LogInDialogState extends State<LogInDialog> with LoginLogoutDialog {
                 },
               ),
               ReusableMainButton(
-                  onClick: () {
-                    Navigator.pop(context);
-                    Navigator.pushReplacement(context,
-                        MaterialPageRoute(builder: (context) => Principal()));
-                  },
-                  textButton: AppLocalizations.of(context)!.signin,
-                  colorButton: 'buttonWhiteBlack')
+                onClick: () {
+                  Navigator.pop(context);
+                  Navigator.pushReplacement(context,
+                      MaterialPageRoute(builder: (context) => Principal()));
+                },
+                textButton: AppLocalizations.of(context)!.signin,
+                colorButton: 'buttonWhiteBlack',
+                colorTextButton: 'buttonBlackWhite',
+                buttonHeight: 0.08,
+                buttonWidth: 0.5, 
+              )
             ],
           ),
         ),

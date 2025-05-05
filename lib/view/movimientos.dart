@@ -1,6 +1,9 @@
+// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member, use_build_context_synchronously, library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/model/models/crud/transaccionescrud.dart';
+import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../model/models/transaccion.dart';
@@ -11,6 +14,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 ///Clase que muestra todos los movimientos/transacciones que se han almacenado en la base de datos
 class Movimientos extends StatefulWidget {
+  const Movimientos({super.key});
+
   @override
   _MovimientosState createState() => _MovimientosState();
 }
@@ -18,13 +23,11 @@ class Movimientos extends StatefulWidget {
 class _MovimientosState extends State<Movimientos> {
   TransaccionCRUD transaccionCRUD = TransaccionCRUD();
   CategoriaDao categoriaDao = CategoriaDao();
-  List<Transaccion> transacciones = [];
   late Database db;
 
   @override
   void initState() {
     super.initState();
-    _cargarTransacciones(); //Inicio con los movimientos cargados
   }
 
   ///Obtener el color de la categoría -> se usa paa el fondo de las card
@@ -55,22 +58,11 @@ class _MovimientosState extends State<Movimientos> {
     }
   }
 
-  ///Cargar las transacciones desde la base de datos, ordenadas por fecha
-  Future<void> _cargarTransacciones() async {
-    List<Transaccion> lista =
-        await transaccionCRUD.obtenerTransaccionesPorFecha();
-    lista.sort((a, b) => -a.fecha.compareTo(b.fecha));
-    setState(() {
-      transacciones = lista;
-    });
-  }
-
   ///Eliminar una transacción
   Future<void> _eliminarTransaccion(int id, int index) async {
     await transaccionCRUD.eliminarTransaccion(id);
-    setState(() {
-      transacciones.removeAt(index);
-    });
+    context.read<ProviderAjustes>().listaTransacciones.removeAt(index);
+    context.read<ProviderAjustes>().notifyListeners();
   }
 
   ///Formatear la fecha para mostrarla de forma legible
@@ -86,6 +78,8 @@ class _MovimientosState extends State<Movimientos> {
 
   @override
   Widget build(BuildContext context) {
+    List<Transaccion> transacciones =
+        context.watch<ProviderAjustes>().listaTransacciones;
     return Scaffold(
       body: transacciones.isEmpty
           ? Center(
@@ -146,11 +140,13 @@ class _MovimientosState extends State<Movimientos> {
                           color:
                               categoriaColor, //Color de fondo de la tarjeta según categoría
                           child: ListTile(
+                            onTap: () =>
+                                _mostrarDetalleEditable(transaccion, index),
                             contentPadding: EdgeInsets.all(
                                 MediaQuery.of(context).size.width * 0.01),
                             leading: icono, //Flecha hacia arriba o hacia abajo
                             title: Text(
-                              "${transaccion.tituloTransaccion}",
+                              transaccion.tituloTransaccion,
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 color: context
@@ -181,7 +177,7 @@ class _MovimientosState extends State<Movimientos> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  '${transaccion.importe.toStringAsFixed(2)}€',
+                                  '${transaccion.importe.toStringAsFixed(2)} ${context.watch<ProviderAjustes>().divisaEnUso.simbolo_divisa}', //Importe con símbolo de la divisa en uso
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: MediaQuery.of(context)
@@ -215,6 +211,87 @@ class _MovimientosState extends State<Movimientos> {
                 );
               },
             ),
+    );
+  }
+
+  void _mostrarDetalleEditable(Transaccion transaccion, int index) {
+    TextEditingController tituloController =
+        TextEditingController(text: transaccion.tituloTransaccion);
+    TextEditingController importeController =
+        TextEditingController(text: transaccion.importe.toString());
+    TextEditingController fechaController =
+        TextEditingController(text: transaccion.fecha);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.editTransaction),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: tituloController,
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.title),
+                ),
+                TextField(
+                  controller: importeController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.amount),
+                ),
+                TextField(
+                  controller: fechaController,
+                  decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.date),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text(AppLocalizations.of(context)!.accept),
+              onPressed: () async {
+                try {
+                  double nuevoImporte = double.parse(importeController.text);
+                  Transaccion transaccionModificada = Transaccion(
+                    id: transaccion.id,
+                    tituloTransaccion: tituloController.text,
+                    categoria: transaccion.categoria,
+                    importe: nuevoImporte,
+                    fecha: fechaController.text,
+                    divisaPrincipal: context
+                        .read()<ProviderAjustes>()
+                        .divisaEnUso
+                        .codigo_divisa,
+                    idUsuario: 1,
+                  );
+
+                  await transaccionCRUD
+                      .actualizarTransaccion(transaccionModificada);
+
+                  context.read<ProviderAjustes>().listaTransacciones[index] =
+                      transaccionModificada;
+                  context.read<ProviderAjustes>().notifyListeners();
+
+                  Navigator.of(context).pop();
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        content: Text(AppLocalizations.of(context)!
+                            .errorUpdatingTransaction)),
+                  );
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

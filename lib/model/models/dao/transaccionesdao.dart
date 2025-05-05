@@ -1,3 +1,4 @@
+import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
 import 'package:proyecto2eva_budget/model/services/db_helper.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -11,67 +12,66 @@ class TransaccionDao {
     return await db.insert(
       'TRANSACCION',
       transaccion,
-      conflictAlgorithm:
-          ConflictAlgorithm.replace, 
+      conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
-  ///Consulta para obtener ingresos por categoría
-  Future<List<Map<String, dynamic>>> obtenerIngresosPorCategoria({
+  ///Consulta para obtener ingresos/gastos por categoría para las estadísticas
+  Future<List<Map<String, dynamic>>> obtenerIngresosGastosPorCategoria({
     String filter = 'all',
     String? year,
+    required String tipoTransaccion,
+    required String actualCode,
   }) async {
+    List<Map<String, dynamic>> totalPorCategoria = [];
+
     final db = await dbHelper.abrirBD();
 
     String whereClause = '';
-    List<String> whereArgs = [];
 
     if (filter == 'year' && year != null) {
-      whereClause = 'AND strftime("%Y", TRANSACCION.fecha) = ?';
-      whereArgs.add(year);
+      whereClause = 'AND strftime("%Y", TRANSACCION.fecha) = $year';
     }
 
-    return await db.rawQuery("""
-    SELECT CATEGORIA.nombre, CATEGORIA.colorcategoria, SUM(TRANSACCION.importe) as total
-    FROM TRANSACCION
-    INNER JOIN CATEGORIA ON TRANSACCION.categoria = CATEGORIA.nombre
-    WHERE CATEGORIA.tipo = 'Ingreso'
-    $whereClause
-    GROUP BY CATEGORIA.nombre
-  """, whereArgs);
-  }
-
-  ///Consulta para obtener gastos por categoría
-  Future<List<Map<String, dynamic>>> obtenerGastosPorCategoria({
-    String filter = 'all',
-    String? year,
-  }) async {
-    final db = await dbHelper.abrirBD();
-
-    String whereClause = '';
-    List<String> whereArgs = [];
-
-    if (filter == 'year' && year != null) {
-      whereClause = 'AND strftime("%Y", TRANSACCION.fecha) = ?';
-      whereArgs.add(year);
+    final categorias = await db.rawQuery(
+      """
+    SELECT CATEGORIA.nombre, CATEGORIA.colorcategoria
+    FROM CATEGORIA
+    WHERE CATEGORIA.tipo = '$tipoTransaccion'
+    """,
+    );
+    
+    for (var categoria in categorias) {
+      final result = await db.rawQuery("""SELECT * FROM TRANSACCION WHERE categoria = '${categoria["nombre"]}' $whereClause""",);
+      var total = 0.0;
+      for (var line in result) {
+        double valor = double.parse(line["importe"].toString());
+        if (line["divisaPrincipal"] != actualCode) {
+          var mapa =
+              (await APIUtils.get_changes(line["divisaPrincipal"].toString()));
+          valor = valor * mapa[actualCode]!;
+        }
+        total += valor;
+      }
+      if(total != 0) {
+        totalPorCategoria.add({
+        'nombre': categoria["nombre"],
+        'color': categoria["colorcategoria"],
+        'total': total,
+      });
+      }
+      
     }
-
-    return await db.rawQuery("""
-    SELECT CATEGORIA.nombre, CATEGORIA.colorcategoria, SUM(TRANSACCION.importe) as total
-    FROM TRANSACCION
-    INNER JOIN CATEGORIA ON TRANSACCION.categoria = CATEGORIA.nombre
-    WHERE CATEGORIA.tipo = 'Gasto'
-    $whereClause
-    GROUP BY CATEGORIA.nombre
-  """, whereArgs);
+    return totalPorCategoria;
+    //devolver lista de mapa de categoria (key) y total (value) y color
   }
 
   ///Consulta para obtener el balance de los movimientos
-  Future<double> obtenerTotalPorTipo({
-    required String tipo,
-    String filter = 'all',
-    String? year,
-  }) async {
+  Future<double> obtenerTotalPorTipo(
+      {required String tipo,
+      String filter = 'all',
+      String? year,
+      required String actualCode}) async {
     final db = await dbHelper.abrirBD();
 
     String whereClause = '';
@@ -83,15 +83,23 @@ class TransaccionDao {
     }
 
     final result = await db.rawQuery("""
-    SELECT SUM(importe) as total 
+    SELECT *
     FROM TRANSACCION
     INNER JOIN CATEGORIA ON TRANSACCION.categoria = CATEGORIA.nombre
     WHERE CATEGORIA.tipo = ?
     $whereClause
   """, whereArgs);
 
-    return result.first['total'] != null
-        ? (result.first['total'] as num).toDouble()
-        : 0.0;
+    var total = 0.0;
+    for (var line in result) {
+      double valor = double.parse(line["importe"].toString());
+      if (line["divisaPrincipal"] != actualCode) {
+        var mapa =
+            (await APIUtils.get_changes(line["divisaPrincipal"].toString()));
+        valor = valor * mapa[actualCode]!;
+      }
+      total += valor;
+    }
+    return total;
   }
 }

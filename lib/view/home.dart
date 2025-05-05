@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:proyecto2eva_budget/view/categorias.dart';
+import 'package:proyecto2eva_budget/view/configuration.dart';
 import 'package:proyecto2eva_budget/view/estadisticas/estadisticas.dart';
 import 'package:proyecto2eva_budget/view/movimientos.dart';
 import 'package:proyecto2eva_budget/view/principal.dart';
-import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 //Clase que define la distribución de la app
@@ -31,10 +31,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final ajustesProvider =
-        Provider.of<ProviderAjustes>(context); //Obtener los ajustes actuales
     return Scaffold(
       appBar: AppBar(
+        forceMaterialTransparency:
+            true, //evita que se cambie de color del appBar cuando s ehace scroll
         title: const Text(
           'MONEYTRACKER',
           style: TextStyle(
@@ -43,29 +43,21 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         actions: [
-          //Botón para cambiar entre modo oscuro y modo claro
+          //Botón para acceder a la página de ajustes
           IconButton(
             icon: Icon(
-              ajustesProvider.modoOscuro
-                  ? Icons.nightlight_round //Icono modo oscuro
-                  : Icons.wb_sunny, //Icono modo claro
+              Icons.settings,
+              color:
+                  context.watch<ThemeProvider>().palette()['buttonBlackWhite']!,
             ),
             onPressed: () {
-              context.read<ThemeProvider>().changeThemeMode(); //cambio modo en ThemeProvider
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ConfigurationPage(),
+                ),
+              );
             },
-          ),
-          //Dropdown para cambiar el idioma
-          DropdownButton<String>(
-            value: ajustesProvider.idioma.languageCode, //Idioma actual
-            onChanged: (String? nuevoIdioma) {
-              if (nuevoIdioma != null) {
-                ajustesProvider.cambiarIdioma(nuevoIdioma); //Cambiar el idioma
-              }
-            },
-            items: const [
-              DropdownMenuItem(value: 'es', child: Text('Español')),
-              DropdownMenuItem(value: 'en', child: Text('English')),
-            ],
           ),
         ],
       ),

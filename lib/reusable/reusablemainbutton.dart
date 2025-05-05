@@ -10,6 +10,9 @@ class ReusableMainButton extends StatelessWidget {
   String?
       textButton; //porque si está cargando quiero que salga el icono de cargando
   String colorButton;
+  String colorTextButton;
+  double buttonHeight;
+  double buttonWidth;
   Widget? child;
 
   ReusableMainButton(
@@ -17,6 +20,9 @@ class ReusableMainButton extends StatelessWidget {
       required this.onClick,
       this.textButton,
       required this.colorButton,
+      required this.colorTextButton,
+      required this.buttonHeight,
+      required this.buttonWidth,
       this.child});
 
   @override
@@ -26,8 +32,13 @@ class ReusableMainButton extends StatelessWidget {
 
     return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size(500, 80), //*
-          backgroundColor: context.watch<ThemeProvider>().palette()[colorButton]!,
+          minimumSize: Size(MediaQuery.of(context).size.height * buttonWidth,
+              MediaQuery.of(context).size.height * buttonHeight),
+          backgroundColor:
+              context.watch<ThemeProvider>().palette()[colorButton]!,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
         ),
         onPressed: onClick,
         child: (textButton != null)
@@ -37,7 +48,7 @@ class ReusableMainButton extends StatelessWidget {
                     fontSize: MediaQuery.of(context).textScaler.scale(20),
                     color: context
                         .watch<ThemeProvider>()
-                        .palette()["textBlackWhite"]!,
+                        .palette()[colorTextButton]!,
                     fontWeight: FontWeight.w500),
                 maxLines: isSmallScreen ? 2 : null,
               )

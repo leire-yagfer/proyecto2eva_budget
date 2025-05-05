@@ -85,6 +85,8 @@ class _CategoriasState extends State<Categorias> {
     List<Categoria> gastos =
         categorias.where((categoria) => categoria.tipo == 'Gasto').toList();
 
+    
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(

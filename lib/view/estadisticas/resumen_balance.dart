@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/model/models/dao/transaccionesdao.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 ///Clase que muestra el balance entre ingresos y gastos en un gráfico circular
@@ -23,20 +24,23 @@ class _BalanceTabState extends State<BalanceTab> {
   @override
   void initState() {
     super.initState();
+    if(mounted){
     _cargarDatos(); //Cargo los datos según se inicia la pantalla
+    }
   }
-
   ///Cargar los datos desde la base de datos
   Future<void> _cargarDatos() async {
     final ingresosResult = await transaccionDao.obtenerTotalPorTipo(
       tipo: 'Ingreso',
       filter: selectedFilter,
       year: selectedYear,
+      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
     );
     final gastosResult = await transaccionDao.obtenerTotalPorTipo(
       tipo: 'Gasto',
       filter: selectedFilter,
       year: selectedYear,
+      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
     );
 
     setState(() {
@@ -95,7 +99,7 @@ class _BalanceTabState extends State<BalanceTab> {
                   sections: [
                     PieChartSectionData(
                       value: ingresosMostrar,
-                      title: "Ingresos\n${ingresos.toStringAsFixed(2)}€",
+                      title: "${ingresos.toStringAsFixed(2)} ${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa}",
                       color: context
                           .watch<ThemeProvider>()
                           .palette()['greenButton']!,
@@ -110,7 +114,7 @@ class _BalanceTabState extends State<BalanceTab> {
                     ),
                     PieChartSectionData(
                       value: gastosMostrar,
-                      title: "Gastos\n${gastos.toStringAsFixed(2)}€",
+                      title: "${gastos.toStringAsFixed(2)} ${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa}",
                       color: context
                           .watch<ThemeProvider>()
                           .palette()['redButton']!,
