@@ -7,7 +7,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
 import 'package:proyecto2eva_budget/view/home.dart';
-import 'package:proyecto2eva_budget/view/loginsignup/loginregister.dart';
 import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
