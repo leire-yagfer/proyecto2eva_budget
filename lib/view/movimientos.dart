@@ -23,12 +23,14 @@ class _MovimientosState extends State<Movimientos> {
   TransaccionCRUD transaccionCRUD = TransaccionCRUD();
   CategoriaDao categoriaDao = CategoriaDao();
   late Database db;
-
+  List<Transaccion> transacciones = []; //creo la lista de transacciones que va a albergar aquellas que sean del usuario logeado
   @override
   void initState() {
     super.initState();
+    //llamo a la función que muestra las transacciones de la BD del usuario en el momento en el que se cambia a este página
+    _cargarTransacciones();
   }
-
+  bool _isLoading = true;
   ///Eliminar una transacción
   Future<void> _eliminarTransaccion(int index) async {
     await transaccionCRUD.eliminarTransaccion(
@@ -50,10 +52,9 @@ class _MovimientosState extends State<Movimientos> {
 
   @override
   Widget build(BuildContext context) {
-    List<Transaccion> transacciones =
-        context.watch<ProviderAjustes>().listaTransacciones;
+    
     return Scaffold(
-      body: transacciones.isEmpty
+      body: (_isLoading)? CircularProgressIndicator() : transacciones.isEmpty
           ? Center(
               child: Text(
                 AppLocalizations.of(context)!.noTransactions,
@@ -152,6 +153,20 @@ class _MovimientosState extends State<Movimientos> {
               },
             ),
     );
+  }
+  
+  //cargar la stransacciones del usuario registradas en la base de datos ordenadas por fecha para mostrarles en orden
+  void _cargarTransacciones() async{
+    setState(() {
+      _isLoading = true;
+    });
+    var aux = await transaccionCRUD.obtenerTransaccionesPorFecha(context.read<ProviderAjustes>().usuario!);
+    setState(() {
+      transacciones = aux;
+    });
+    setState(() {
+      _isLoading = false;
+    });
   }
 /*
   void _mostrarDetalleEditable(Transaccion transaccion, int index) {

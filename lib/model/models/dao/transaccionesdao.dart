@@ -82,7 +82,7 @@ class TransaccionDao {
     var userRef = await data.doc(u.id).collection("categories").get();
     //recorrer cada categoría
     for (var c in userRef.docs) {
-      if (c.data()['esingreso'] != isIncome)
+      if (c.data()['isincome'] != isIncome)
         continue; //si no es el tipo de transacción que busco, continuar
       //acceder a las transacciones de la categoría por la que se llega recorriendo
       var transactionsInCategory =
@@ -92,7 +92,7 @@ class TransaccionDao {
       for (var t in transactionsInCategory.docs) {
         Map<String, dynamic> transdata = t.data();
         if (filter == 'year' && year != null) {
-          if(transdata['fecha'].year.toString() == year) {
+          if(transdata['datetime'].year.toString() == year) {
             total += transdata['import'];
           }
         }else{

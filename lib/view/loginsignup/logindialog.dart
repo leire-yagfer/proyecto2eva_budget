@@ -171,6 +171,7 @@ class _LogInDialogState extends State<LogInDialog> with LoginLogoutDialog {
           context.read<ProviderAjustes>().inicioSesion(Usuario(
               id: userCredential.user!.uid,
               correoUsuario: _usernameController.text));
+          await context.read<ProviderAjustes>().cargarTransacciones();
         }
       } on FirebaseAuthException catch (e) {
         String errorMsg = 'Authentication failed';

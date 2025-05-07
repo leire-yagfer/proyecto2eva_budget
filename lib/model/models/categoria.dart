@@ -17,9 +17,9 @@ class Categoria {
   //a partir de un mapa creo una categoría
   static Categoria fromMap(Map<String, dynamic> map) {
     return Categoria(
-      nombre: map['nombre'],
-      icono: map['icono'],
-      esingreso: map['esingreso'] == 1,
+      nombre: map['id'],
+      icono: map['icon'],
+      esingreso: map['isincome'] == 1,
       colorCategoria: Color.fromARGB(
         255, //siempre opaco
         map['cr'],

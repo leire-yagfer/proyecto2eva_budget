@@ -27,16 +27,16 @@ class Transaccion {
   static Transaccion fromMap(Map<String, dynamic> map) {
     return Transaccion(
       id: map['id'],
-      tituloTransaccion: map['tituloTransaccion'],
-      fecha: map['fecha'],
-      divisa: APIUtils.getFromList(map['divisa'])!,
+      tituloTransaccion: map['title'],
+      fecha: map['datetime'],
+      divisa: APIUtils.getFromList(map['currency'])!,
       categoria: Categoria.fromMap(map['categoria']),
-      importe: map['importe'],
-      descripcion: map['descripcion'],
+      importe: map['import'],
+      descripcion: map['description'],
     );
   }
 
-   Map<String, dynamic> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'currency': divisa.codigo_divisa,
       'datetime': fecha,

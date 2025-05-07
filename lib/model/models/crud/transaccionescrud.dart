@@ -15,7 +15,7 @@ class TransaccionCRUD {
 
     //obtengo las transacciones de cada categoria
     for (var c in categories.docs) {
-      var transacciones = await c.reference.collection('transacciones').get();
+      var transacciones = await c.reference.collection('transactions').get();
       for (var t in transacciones.docs) {
         var transaccion = t.data();
         transaccion["id"] =
@@ -23,7 +23,7 @@ class TransaccionCRUD {
         transaccion["categoria"] = c
             .data(); //le paso todos los datos que implica la categoria a la que pertenece dicha transacción
         transaccion["categoria"]["id"] =
-            c.id; //le paso el ID de la categoria pq no lo pasa directamente
+            c.id; //le paso el ID de la categoria pq no lo pasa directamente --> id = nombre
 
         allTransacciones.add(Transaccion.fromMap(
             transaccion)); //método transacción que se encarga de crear la transacción a partir del mapa

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:proyecto2eva_budget/model/models/dao/categoriadao.dart';
 import 'package:proyecto2eva_budget/model/models/dao/transaccionesdao.dart';
 import 'package:proyecto2eva_budget/model/models/categoria.dart';
 import 'package:proyecto2eva_budget/model/models/transaccion.dart';
@@ -70,6 +71,12 @@ class Principal extends StatelessWidget {
         []; //Lista de categorías -> se cargará con las categorías de ingreso o gasto según lo que se haya elegido
     Categoria? selectedCategoria; //Categoría seleccionada
 
+    categorias = await CategoriaDao().obtenerCategoriasPorTipo(
+        context.read<ProviderAjustes>().usuario!,
+        color !=
+            Provider.of<ThemeProvider>(context, listen: false).palette()[
+                'redButton']!); //Obtener categorías del usuario en función del color. EN este caso le paso el rojo porque si es rojo va a mostrar los que sean de gatsos y sino los verdes.
+
     showDialog(
       context: context,
       barrierDismissible:
@@ -130,7 +137,7 @@ class Principal extends StatelessWidget {
                           controller: _cantidadController,
                           keyboardType: TextInputType.number, //solo números
                           labelText: AppLocalizations.of(context)!.quantity,
-                          hintText: AppLocalizations.of(context)!.quantityHint,
+                          hintText: "${AppLocalizations.of(context)!.quantityHint} (${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa})",
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return AppLocalizations.of(context)!
@@ -264,7 +271,7 @@ class Principal extends StatelessWidget {
                                 await TransaccionDao().insertarTransaccion(
                                     context.read<ProviderAjustes>().usuario!,
                                     transaccion);
-                                context
+                                await context
                                     .read<ProviderAjustes>()
                                     .cargarTransacciones();
 

@@ -15,7 +15,8 @@ class ProviderAjustes extends ChangeNotifier {
   List<Transaccion> listaTransacciones = [];
 
   ///Cargar las preferencias guardadas al iniciar la app
-  ProviderAjustes() {
+  ProviderAjustes(Usuario? usuario) {
+    this.usuario = usuario;
     _cargarPreferencias();
   }
 
@@ -96,4 +97,6 @@ class ProviderAjustes extends ChangeNotifier {
     this.usuario = null;
     notifyListeners();
   }
+
+  
 }

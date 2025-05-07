@@ -1,13 +1,21 @@
 // ignore_for_file: annotate_overrides, overridden_fields, use_key_in_widget_constructors, library_private_types_in_public_api
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:logger/web.dart';
 import 'package:provider/provider.dart';
+import 'package:proyecto2eva_budget/main.dart';
+import 'package:proyecto2eva_budget/model/models/dao/categoriadao.dart';
+import 'package:proyecto2eva_budget/model/models/usuario.dart';
+import 'package:proyecto2eva_budget/model/services/firebaseauth.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusablerowloginregister.dart';
 import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/mixinloginregisterlogout.dart';
+import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
 //clase que implementa el dopDownButton de selección de país, ya que es de tipo stateful
@@ -28,6 +36,12 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
 
   bool _isPasswordVisible =
       false; // Variable para controlar la visibilidad de la contraseña
+
+  String? _errorMessage;
+
+  final _authService = AuthService();
+
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -163,12 +177,31 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
                     height: MediaQuery.of(context).size.height * 0.03,
                   ),
                   ReusableMainButton(
-                      onClick: () {
-                        Navigator.pop(context);
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MyHomePage()));
+                      onClick: () async {
+                        await _register();
+                        if (_errorMessage == null) {
+                          Navigator.pop(context);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MyHomePage()));
+                        } else {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: Text(_errorMessage!),
+                              content: Text(_errorMessage!),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text("OK"),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                       },
                       textButton: AppLocalizations.of(context)!.register,
                       colorButton: 'buttonWhiteBlack',
@@ -182,7 +215,6 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
     );
   }
 
-  /*
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -212,18 +244,14 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
         // Get the user's UID
         final String uid = userCredential.user!.uid;
 
-        // Create a user document in Firestore
+        //Create a user document in Firestore
         try {
-          await firestore!.collection('navera_data').doc(uid).set({
+          await firestore!.collection('users').doc(uid).set({
             'email': _emailController.text.trim(),
-            'createdAt': FieldValue.serverTimestamp(),
-            'location': countriesNames[countryIndex],
-            'lastLogin': FieldValue.serverTimestamp(),
           });
-          context.read<UserDataProvider>().logIn(UserData(
-              uid: uid,
-              userLoc: countriesNames[countryIndex],
-              userEmail: _emailController.text.trim()));
+          context.read<ProviderAjustes>().inicioSesion(
+              Usuario(id: uid, correoUsuario: _emailController.text.trim()));
+          await CategoriaDao().insertarCategoriasRegistro(uid);
         } catch (firestoreError) {
           Logger().e(firestoreError);
           // Continue with registration even if Firestore fails
@@ -271,5 +299,4 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
       });
     }
   }
-   */
 }
