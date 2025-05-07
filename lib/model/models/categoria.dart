@@ -19,7 +19,7 @@ class Categoria {
     return Categoria(
       nombre: map['id'],
       icono: map['icon'],
-      esingreso: map['isincome'] == 1,
+      esingreso: map['isincome'],
       colorCategoria: Color.fromARGB(
         255, //siempre opaco
         map['cr'],
