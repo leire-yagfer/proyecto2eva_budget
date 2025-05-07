@@ -8,7 +8,6 @@ import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 import 'package:sqflite/sqflite.dart';
 import '../model/models/transaccion.dart';
 import '../model/models/dao/categoriadao.dart';
-import '../model/services/db_helper.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -30,34 +29,6 @@ class _MovimientosState extends State<Movimientos> {
     super.initState();
   }
 
-  ///Obtener el color de la categoría -> se usa paa el fondo de las card
-  Future<Color> obtenerColorCategoria(String categoriaNombre) async {
-    db = await DBHelper().abrirBD();
-    var categoria = await categoriaDao.obtenerCategoriaPorNombre(
-        db, categoriaNombre); //Obtengo la categoría por nombre
-    return categoria != null
-        ? _obtenerColor(
-            categoria.colorcategoria) //Obtengo el color de la categoría
-        : context.watch<ThemeProvider>().palette()['fixedBlack']!;
-  }
-
-  ///Obtener el tipo de la categoría (Ingreso o Gasto)
-  Future<String> obtenerTipoCategoria(String categoriaNombre) async {
-    db = await DBHelper().abrirBD();
-    var categoria =
-        await categoriaDao.obtenerCategoriaPorNombre(db, categoriaNombre);
-    return categoria?.tipo ?? 'Gasto';
-  }
-
-  ///Convertir color hexadecimal a Color
-  Color _obtenerColor(String colorHex) {
-    if (colorHex.startsWith('#')) {
-      return Color(int.parse(colorHex.replaceAll('#', '0xFF')));
-    } else {
-      return context.watch<ThemeProvider>().palette()['fixedBlack']!;
-    }
-  }
-
   ///Eliminar una transacción
   Future<void> _eliminarTransaccion(int id, int index) async {
     await transaccionCRUD.eliminarTransaccion(id);
@@ -66,13 +37,12 @@ class _MovimientosState extends State<Movimientos> {
   }
 
   ///Formatear la fecha para mostrarla de forma legible
-  String _formatearFecha(String fecha) {
+  String _formatearFecha(DateTime fecha) {
     try {
-      DateTime fechaParseada = DateTime.parse(fecha);
-      return DateFormat('dd/MM/yyyy')
-          .format(fechaParseada); // Formato: 07/02/2025
+      return DateFormat('dd/MM/yyyy').format(fecha); // Formato: 07/02/2025
     } catch (e) {
-      return fecha; // Si no se puede formatear, mostrar la fecha original
+      return fecha
+          .toIso8601String(); // Si no se puede formatear, mostrar la fecha original
     }
   }
 
@@ -94,131 +64,99 @@ class _MovimientosState extends State<Movimientos> {
               itemCount: transacciones.length,
               itemBuilder: (context, index) {
                 Transaccion transaccion = transacciones[index];
-
-                //Llamo a los métodos para obtener el color de la categoría y el tipo
-                return FutureBuilder<Color>(
-                  future: obtenerColorCategoria(transaccion.categoria),
-                  builder: (context, colorSnapshot) {
-                    if (colorSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    }
-                    Color categoriaColor = colorSnapshot.data ??
-                        context.watch<ThemeProvider>().palette()['fixedBlack']!;
-
-                    return FutureBuilder<String>(
-                      future: obtenerTipoCategoria(transaccion.categoria),
-                      builder: (context, tipoSnapshot) {
-                        if (tipoSnapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return CircularProgressIndicator();
-                        }
-
-                        String tipoCategoria = tipoSnapshot.data ?? 'Gasto';
-                        Color fechaEImporteColor;
-                        Icon icono;
-                        if (tipoCategoria == 'Ingreso') {
-                          fechaEImporteColor = context
-                              .watch<ThemeProvider>()
-                              .palette()['greenButton']!; //Verde
-                          icono = Icon(Icons.arrow_upward,
-                              color: fechaEImporteColor);
-                        } else {
-                          fechaEImporteColor = context
-                              .watch<ThemeProvider>()
-                              .palette()['redButton']!; //Rojo
-                          icono = Icon(Icons.arrow_downward,
-                              color: fechaEImporteColor);
-                        }
-
-                        return Card(
-                          margin: EdgeInsets.symmetric(
-                              vertical:
-                                  MediaQuery.of(context).size.height * 0.012,
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.015),
-                          color:
-                              categoriaColor, //Color de fondo de la tarjeta según categoría
-                          child: ListTile(
-                            onTap: () =>
-                                _mostrarDetalleEditable(transaccion, index),
-                            contentPadding: EdgeInsets.all(
-                                MediaQuery.of(context).size.width * 0.01),
-                            leading: icono, //Flecha hacia arriba o hacia abajo
-                            title: Text(
-                              transaccion.tituloTransaccion,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: context
-                                    .watch<ThemeProvider>()
-                                    .palette()['fixedBlack']!,
-                              ),
-                            ),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "${AppLocalizations.of(context)!.date}: ${_formatearFecha(transaccion.fecha)}",
-                                  style: TextStyle(
-                                      color: context
-                                          .watch<ThemeProvider>()
-                                          .palette()['fixedBlack']!),
-                                ),
-                                Text(
-                                  "${AppLocalizations.of(context)!.category}: ${transaccion.categoria}",
-                                  style: TextStyle(
-                                      color: context
-                                          .watch<ThemeProvider>()
-                                          .palette()['fixedBlack']!),
-                                ),
-                              ],
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  '${transaccion.importe.toStringAsFixed(2)} ${context.watch<ProviderAjustes>().divisaEnUso.simbolo_divisa}', //Importe con símbolo de la divisa en uso
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: MediaQuery.of(context)
-                                        .textScaler
-                                        .scale(14),
-                                    color:
-                                        fechaEImporteColor, //Importe con color según tipo
-                                  ),
-                                ),
-                                SizedBox(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.01),
-                                IconButton(
-                                  icon: Icon(Icons.delete,
-                                      color: context
-                                          .watch<ThemeProvider>()
-                                          .palette()['fixedBlack']!),
-                                  iconSize:
-                                      MediaQuery.of(context).size.width * 0.05,
-                                  onPressed: () {
-                                    _eliminarTransaccion(transaccion.id, index);
-                                  },
-                                ),
-                              ],
-                            ),
+                Color fechaEImporteColor;
+                Icon icono;
+                if (transaccion.categoria.esingreso) {
+                  //si es ingreso
+                  fechaEImporteColor = context
+                      .watch<ThemeProvider>()
+                      .palette()['greenButton']!; //Verde
+                  icono = Icon(Icons.arrow_upward, color: fechaEImporteColor);
+                } else {
+                  //si es gasto
+                  fechaEImporteColor = context
+                      .watch<ThemeProvider>()
+                      .palette()['redButton']!; //Rojo
+                  icono = Icon(Icons.arrow_downward, color: fechaEImporteColor);
+                }
+                return Card(
+                  margin: EdgeInsets.symmetric(
+                      vertical: MediaQuery.of(context).size.height * 0.012,
+                      horizontal: MediaQuery.of(context).size.width * 0.015),
+                  color: transaccion.categoria
+                      .colorCategoria, //Color de fondo de la tarjeta según categoría
+                  child: ListTile(
+                    //onTap: () => _mostrarDetalleEditable(transaccion, index),
+                    contentPadding: EdgeInsets.all(
+                        MediaQuery.of(context).size.width * 0.01),
+                    leading: icono, //Flecha hacia arriba o hacia abajo
+                    title: Text(
+                      transaccion.tituloTransaccion,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: context
+                            .watch<ThemeProvider>()
+                            .palette()['fixedBlack']!,
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${AppLocalizations.of(context)!.date}: ${_formatearFecha(transaccion.fecha)}",
+                          style: TextStyle(
+                              color: context
+                                  .watch<ThemeProvider>()
+                                  .palette()['fixedBlack']!),
+                        ),
+                        Text(
+                          "${AppLocalizations.of(context)!.category}: ${transaccion.categoria}",
+                          style: TextStyle(
+                              color: context
+                                  .watch<ThemeProvider>()
+                                  .palette()['fixedBlack']!),
+                        ),
+                      ],
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${transaccion.importe.toStringAsFixed(2)} ${context.watch<ProviderAjustes>().divisaEnUso.simbolo_divisa}', //Importe con símbolo de la divisa en uso
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize:
+                                MediaQuery.of(context).textScaler.scale(14),
+                            color:
+                                fechaEImporteColor, //Importe con color según tipo
                           ),
-                        );
-                      },
-                    );
-                  },
+                        ),
+                        SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.01),
+                        IconButton(
+                          icon: Icon(Icons.delete,
+                              color: context
+                                  .watch<ThemeProvider>()
+                                  .palette()['fixedBlack']!),
+                          iconSize: MediaQuery.of(context).size.width * 0.05,
+                          onPressed: () {
+                            _eliminarTransaccion(transaccion.id, index);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),
     );
   }
-
+/*
   void _mostrarDetalleEditable(Transaccion transaccion, int index) {
     TextEditingController tituloController =
         TextEditingController(text: transaccion.tituloTransaccion);
     TextEditingController importeController =
-        TextEditingController(text: transaccion.importe.toString());
+        TextEditingController(text: transaccion.importe.toStringAsFixed(2));
     TextEditingController fechaController =
         TextEditingController(text: transaccion.fecha);
 
@@ -293,5 +231,5 @@ class _MovimientosState extends State<Movimientos> {
         );
       },
     );
-  }
+  }*/
 }

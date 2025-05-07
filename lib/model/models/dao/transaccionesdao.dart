@@ -1,104 +1,106 @@
-import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:proyecto2eva_budget/model/models/categoria.dart';
+import 'package:proyecto2eva_budget/model/models/transaccion.dart';
+import 'package:proyecto2eva_budget/model/models/usuario.dart';
 import 'package:proyecto2eva_budget/model/services/db_helper.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:proyecto2eva_budget/model/services/firebasedb.dart';
 
 ///Clase que gestiona transacciones en la base de datos
 class TransaccionDao {
   final DBHelper dbHelper = DBHelper();
+  CollectionReference data = Firebasedb.data;
 
   ///Método para insertar una transacción
-  Future<int> insertarTransaccion(Map<String, dynamic> transaccion) async {
-    final db = await dbHelper.abrirBD();
-    return await db.insert(
-      'TRANSACCION',
-      transaccion,
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<void> insertarTransaccion(Usuario u, Transaccion t) async {
+    //sacar el usuario pasado por param
+    var userRef = await data.doc(u.id);
+
+    //recojo la categoría que tiene asignada la transacción t pasada por parametro --> si no hay la crea
+    var categoryRef = userRef.collection("categories").doc(t.categoria.nombre);
+
+    //añadiendo la transaccion a la colección de transacciones, de la categoría a la que pertence, del usuario
+    await categoryRef.collection("transactions").add(
+        t.toMap()); //el id no se pasa porque se autogenera solo en firebase
   }
 
-  ///Consulta para obtener ingresos/gastos por categoría para las estadísticas
-  Future<List<Map<String, dynamic>>> obtenerIngresosGastosPorCategoria({
+  ///Consulta para obtener ingresos/gastos por categoría
+  Future<Map<Categoria, List<Transaccion>>> obtenerIngresosGastosPorCategoria({
     String filter = 'all',
     String? year,
-    required String tipoTransaccion,
+    required Usuario u,
     required String actualCode,
+    required bool isIncome,
   }) async {
-    List<Map<String, dynamic>> totalPorCategoria = [];
+    //lista de cada categoría con sus transacciones
+    Map<Categoria, List<Transaccion>> mapaCategories = {};
 
-    final db = await dbHelper.abrirBD();
-
-    String whereClause = '';
-
+    //acceder a las categorías del usuario
+    var userRef = await data.doc(u.id).collection("categories").get();
+    //recorrer cada categoría
+    for (var c in userRef.docs) {
+      Map<String, dynamic> cat = c.data(); //cat --> datos categoria
+      cat['id'] = c.id;
+      Categoria categoria = Categoria.fromMap(
+          cat); //crear objeto categoria en funcion del valor obtenido
+      //acceder a las transacciones de la categoría por la que se llega recorriendo
+      var transactionsInCategory =
+          await c.reference.collection('transactions').get();
+      //creo lista de transacciones que va a pertenecer a una categoria concreta
+      List<Transaccion> transacciones = [];
+      //recorrer cada transacción
+      for (var t in transactionsInCategory.docs) {
+        Map<String, dynamic> transdata = t.data();
+        transdata['id'] = t.id;
+        Transaccion transaccion = Transaccion.fromMap(transdata);
+        //añadir la transacción a la lista
+        transacciones.add(transaccion);
+      }
+      //añadir la categoría y sus transacciones a la lista
+      mapaCategories[categoria] = transacciones;
+    }
+    //filtrar por ingreso
+    mapaCategories.removeWhere((key, _) => !(key.esingreso == isIncome));
+    //filtrar por año
     if (filter == 'year' && year != null) {
-      whereClause = 'AND strftime("%Y", TRANSACCION.fecha) = $year';
-    }
-
-    final categorias = await db.rawQuery(
-      """
-    SELECT CATEGORIA.nombre, CATEGORIA.colorcategoria
-    FROM CATEGORIA
-    WHERE CATEGORIA.tipo = '$tipoTransaccion'
-    """,
-    );
-    
-    for (var categoria in categorias) {
-      final result = await db.rawQuery("""SELECT * FROM TRANSACCION WHERE categoria = '${categoria["nombre"]}' $whereClause""",);
-      var total = 0.0;
-      for (var line in result) {
-        double valor = double.parse(line["importe"].toString());
-        if (line["divisaPrincipal"] != actualCode) {
-          var mapa =
-              (await APIUtils.get_changes(line["divisaPrincipal"].toString()));
-          valor = valor * mapa[actualCode]!;
-        }
-        total += valor;
-      }
-      if(total != 0) {
-        totalPorCategoria.add({
-        'nombre': categoria["nombre"],
-        'color': categoria["colorcategoria"],
-        'total': total,
+      mapaCategories.forEach((key, value) {
+        value.removeWhere(
+            (transaccion) => transaccion.fecha.year.toString() != year);
       });
-      }
-      
     }
-    return totalPorCategoria;
-    //devolver lista de mapa de categoria (key) y total (value) y color
+    return mapaCategories;
   }
 
   ///Consulta para obtener el balance de los movimientos
-  Future<double> obtenerTotalPorTipo(
-      {required String tipo,
-      String filter = 'all',
-      String? year,
-      required String actualCode}) async {
-    final db = await dbHelper.abrirBD();
+  Future<double> obtenerTotalPorTipo({
+    required Usuario u,
+    required bool isIncome,
+    String filter = 'all',
+    String? year,
+  }) async {
+    //lista de cada categoría con sus transacciones
+    double total = 0;
 
-    String whereClause = '';
-    List<String> whereArgs = [tipo];
-
-    if (filter == 'year' && year != null) {
-      whereClause = 'AND strftime("%Y", TRANSACCION.fecha) = ?';
-      whereArgs.add(year);
-    }
-
-    final result = await db.rawQuery("""
-    SELECT *
-    FROM TRANSACCION
-    INNER JOIN CATEGORIA ON TRANSACCION.categoria = CATEGORIA.nombre
-    WHERE CATEGORIA.tipo = ?
-    $whereClause
-  """, whereArgs);
-
-    var total = 0.0;
-    for (var line in result) {
-      double valor = double.parse(line["importe"].toString());
-      if (line["divisaPrincipal"] != actualCode) {
-        var mapa =
-            (await APIUtils.get_changes(line["divisaPrincipal"].toString()));
-        valor = valor * mapa[actualCode]!;
+    //acceder a las categorías del usuario
+    var userRef = await data.doc(u.id).collection("categories").get();
+    //recorrer cada categoría
+    for (var c in userRef.docs) {
+      if (c.data()['esingreso'] != isIncome)
+        continue; //si no es el tipo de transacción que busco, continuar
+      //acceder a las transacciones de la categoría por la que se llega recorriendo
+      var transactionsInCategory =
+          await c.reference.collection('transactions').get();
+      //creo lista de transacciones que va a pertenecer a una categoria concreta
+      //recorrer cada transacción
+      for (var t in transactionsInCategory.docs) {
+        Map<String, dynamic> transdata = t.data();
+        if (filter == 'year' && year != null) {
+          if(transdata['fecha'].year.toString() == year) {
+            total += transdata['import'];
+          }
+        }else{
+          total+=transdata['import'];
+        }
       }
-      total += valor;
     }
     return total;
   }

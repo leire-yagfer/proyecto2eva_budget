@@ -1,49 +1,47 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:proyecto2eva_budget/model/models/categoria.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:proyecto2eva_budget/model/models/usuario.dart';
+import 'package:proyecto2eva_budget/model/services/firebasedb.dart';
 
 ///Clase que gestiona las categorías en la base de datos
 class CategoriaDao {
+  CollectionReference data = Firebasedb.data;
+
   ///Obtener todas las categorías
-  Future<List<Categoria>> obtenerCategorias(Database db) async {
-    final List<Map<String, dynamic>> maps = await db.query('CATEGORIA');
+  Future<List<Categoria>> obtenerCategorias(Usuario usuario) async {
+    //1. sacar el docuemnto del user --> d eun usuario en concreto pq se lo paso por parametro
+    var userdoc = await data.doc(usuario.id).get();
 
-    return List.generate(maps.length, (i) {
-      return Categoria.fromMap(maps[i]);
-    });
-  }
+    //2. coger categ asignadas a ese usuario
+    var categoriasCollection =
+        await userdoc.reference.collection("categories").get();
 
-  ///Obtener una categoría por nombre
-  Future<Categoria?> obtenerCategoriaPorNombre(
-      Database db, String nombre) async {
-    List<Map<String, dynamic>> resultado = await db.query(
-      'CATEGORIA',
-      where: 'nombre = ?',
-      whereArgs: [nombre],
-    );
+    //3. guardar todos los datos
+    List<Categoria> categoriasUser = [];
 
-    if (resultado.isNotEmpty) {
-      return Categoria.fromMap(resultado.first);
-    } else {
-      return null; //no se encuentra la categoría
+    for (var categoria in categoriasCollection.docs) {
+      //saco los datos de categoria
+      var datosCategoria = categoria.data();
+      var nombreCategoria = categoria.id;
+      categoriasUser.add(Categoria(
+          nombre: nombreCategoria,
+          icono: datosCategoria["icon"],
+          esingreso: datosCategoria["isincome"],
+          colorCategoria: Color.fromARGB(255, datosCategoria["cr"], datosCategoria["cg"],
+              datosCategoria["cb"])));
     }
+    return categoriasUser;
   }
 
   ///Obtener categoría por tipo
   Future<List<Categoria>> obtenerCategoriasPorTipo(
-      Database db, String tipo) async {
-    final List<Map<String, dynamic>> maps = await db.query(
-      'CATEGORIA',
-      where: 'tipo = ?',
-      whereArgs: [tipo],
-    );
+      Usuario usuario, bool tipo) async {
+    //cojo todas las categorias
+    List<Categoria> categoriasUser = await obtenerCategorias(usuario);
 
-    return List.generate(maps.length, (i) {
-      return Categoria(
-        nombre: maps[i]['nombre'],
-        icono: maps[i]['icono'],
-        tipo: maps[i]['tipo'],
-        colorcategoria: maps[i]['colorcategoria'],
-      );
-    });
+    //me quedo con aquellas que tengan la booleana en el mismo párametro que "tipo"
+    categoriasUser.retainWhere((elemento) => elemento.esingreso == tipo);
+    return categoriasUser;
   }
 }

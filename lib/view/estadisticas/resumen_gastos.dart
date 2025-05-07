@@ -19,7 +19,8 @@ class _GastosTabState extends State<GastosTab> {
   Map<String, double> dataMap = {}; //Almacena las categorías
   Map<String, Color> colorMap = {}; //Almacena los colores de las categorías
   String? selectedYear; //Almacena el año seleccionado en el DropDownButton
-  String selectedFilter = 'all'; //Filtro por defecto -> se muestra el resumen de todos los movimeintos
+  String selectedFilter =
+      'all'; //Filtro por defecto -> se muestra el resumen de todos los movimeintos
 
   @override
   void initState() {
@@ -36,20 +37,24 @@ class _GastosTabState extends State<GastosTab> {
     final result = await transaccionDao.obtenerIngresosGastosPorCategoria(
       filter: selectedFilter,
       year: selectedYear,
-      tipoTransaccion: 'Gasto',
-      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa
+      u: context.read<ProviderAjustes>().usuario!,
+      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
+      isIncome: false,
     );
 
     Map<String, double> tempData = {};
     Map<String, Color> tempColor = {};
 
-    for (var row in result) {
-      String categoria = row['nombre'] as String;
-      double total = (row['total'] as num).toDouble();
-      String colorHex = row['color'] as String;
+    for (var row in result.entries) {
+      String categoria = row.key.nombre;
+      double total = 0;
+      row.value.forEach((transaccion) {
+        total += transaccion.importe;
+      });
+      Color color = row.key.colorCategoria;
 
       tempData[categoria] = total;
-      tempColor[categoria] = _hexToColor(colorHex);
+      tempColor[categoria] = color;
     }
 
     setState(() {
@@ -58,11 +63,7 @@ class _GastosTabState extends State<GastosTab> {
     });
   }
 
-  ///Convertir código hexadecimal en un color
-  Color _hexToColor(String hex) {
-    hex = hex.replaceAll("#", "");
-    return Color(int.parse("0xFF$hex"));
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +103,8 @@ class _GastosTabState extends State<GastosTab> {
           if (selectedFilter == 'year') _buildYearPicker(),
           dataMap.isEmpty
               ? Padding(
-                  padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.05),
+                  padding: EdgeInsets.symmetric(
+                      vertical: MediaQuery.of(context).size.height * 0.05),
                   child: Text(
                     AppLocalizations.of(context)!.noTransactions,
                     style: TextStyle(
@@ -113,7 +115,6 @@ class _GastosTabState extends State<GastosTab> {
                   ),
                 )
               : SizedBox(
-                  
                   child: GraficoGastos(dataMap: dataMap, colorMap: colorMap),
                 ),
         ],
@@ -159,7 +160,7 @@ class GraficoGastos extends StatelessWidget {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
         SizedBox(
           height: MediaQuery.of(context).size.height * 0.45,
           child: PieChart(
@@ -167,20 +168,22 @@ class GraficoGastos extends StatelessWidget {
               sections: dataMap.entries.map((entry) {
                 return PieChartSectionData(
                   value: entry.value,
-                  title: "${entry.key}\n${entry.value.toStringAsFixed(2)} ${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa}",
+                  title:
+                      "${entry.key}\n${entry.value.toStringAsFixed(2)} ${context.read<ProviderAjustes>().divisaEnUso.simbolo_divisa}",
                   color: colorMap[entry.key],
                   radius: 80,
                   titleStyle: TextStyle(
                     fontSize: MediaQuery.of(context).textScaler.scale(30),
                     fontWeight: FontWeight.w600,
-                    color: context.watch<ThemeProvider>().palette()['fixedBlack']!,
+                    color:
+                        context.watch<ThemeProvider>().palette()['fixedBlack']!,
                   ),
                 );
               }).toList(),
             ),
           ),
         ),
-         SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+        SizedBox(height: MediaQuery.of(context).size.height * 0.02),
         Wrap(
           spacing: MediaQuery.of(context).size.width * 0.02,
           children: dataMap.keys.map((categoria) {
@@ -192,7 +195,7 @@ class GraficoGastos extends StatelessWidget {
                   height: MediaQuery.of(context).size.height * 0.015,
                   color: colorMap[categoria],
                 ),
-                 SizedBox(width: MediaQuery.of(context).size.width * 0.005),
+                SizedBox(width: MediaQuery.of(context).size.width * 0.005),
                 Text(
                   categoria,
                 ),

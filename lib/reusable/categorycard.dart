@@ -9,8 +9,7 @@ class CategoryCard extends StatelessWidget {
   final String
       title; //Título que se muestra arriba de la lista -> Ingresos/Gastos
   final List<Categoria> categorias; //Lista de categorías a mostrar
-  final Color Function(String)
-      categoryColor; //Función para obtener el color de la categoría
+  
   final IconData Function(String)
       categoryIcon; //Función para obtener el icono de la categoría
 
@@ -18,7 +17,6 @@ class CategoryCard extends StatelessWidget {
     Key? key,
     required this.title,
     required this.categorias,
-    required this.categoryColor,
     required this.categoryIcon,
   }) : super(key: key);
 
@@ -39,7 +37,7 @@ class CategoryCard extends StatelessWidget {
           itemBuilder: (context, index) {
             var categoria = categorias[index];
             return Card(
-              color: categoryColor(categoria.colorcategoria),
+              color: categoria.colorCategoria,
               margin: EdgeInsets.symmetric(
                   vertical: MediaQuery.of(context).size.height * 0.008,
                   horizontal: MediaQuery.of(context).size.width * 0.015),

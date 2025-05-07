@@ -1,10 +1,11 @@
+// ignore_for_file: use_build_context_synchronously, no_leading_underscores_for_local_identifiers
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:proyecto2eva_budget/model/models/dao/categoriadao.dart';
 import 'package:proyecto2eva_budget/model/models/dao/transaccionesdao.dart';
 import 'package:proyecto2eva_budget/model/models/categoria.dart';
-import 'package:proyecto2eva_budget/model/services/db_helper.dart';
+import 'package:proyecto2eva_budget/model/models/transaccion.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusabletxtformfield.dart';
 import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
@@ -67,15 +68,7 @@ class Principal extends StatelessWidget {
         TextEditingController();
     List<Categoria> categorias =
         []; //Lista de categorías -> se cargará con las categorías de ingreso o gasto según lo que se haya elegido
-    String? selectedCategoria; //Categoría seleccionada
-    String tipoCategoria = (title == AppLocalizations.of(context)!.addIncome)
-        ? 'Ingreso'
-        : 'Gasto';
-
-    final db = await DBHelper().abrirBD();
-    //Obtener las categorías por tipo
-    categorias =
-        await CategoriaDao().obtenerCategoriasPorTipo(db, tipoCategoria);
+    Categoria? selectedCategoria; //Categoría seleccionada
 
     showDialog(
       context: context,
@@ -158,7 +151,7 @@ class Principal extends StatelessWidget {
                         StatefulBuilder(
                           builder:
                               (BuildContext context, StateSetter setState) {
-                            return DropdownButtonFormField<String>(
+                            return DropdownButtonFormField<Categoria>(
                               decoration: InputDecoration(
                                 labelText:
                                     AppLocalizations.of(context)!.categories,
@@ -169,21 +162,21 @@ class Principal extends StatelessWidget {
                                 border: OutlineInputBorder(),
                               ),
                               value: selectedCategoria,
-                              onChanged: (String? newValue) {
+                              onChanged: (Categoria? newValue) {
                                 setState(() {
                                   selectedCategoria =
                                       newValue; //Actualizar categoría seleccionada
                                 });
                               },
                               items: categorias.map((Categoria categoria) {
-                                return DropdownMenuItem<String>(
-                                  value: categoria.nombre,
+                                return DropdownMenuItem<Categoria>(
+                                  value: categoria,
                                   child: Text(categoria
                                       .nombre), //Nombre de la categoría
                                 );
                               }).toList(),
                               validator: (value) {
-                                if (value == null || value.isEmpty) {
+                                if (value == null) {
                                   return AppLocalizations.of(context)!
                                       .categoryError; //Validación para categoría
                                 }
@@ -253,29 +246,24 @@ class Principal extends StatelessWidget {
                                 String fecha = _dateController.text;
                                 String descripcion =
                                     _descripcionController.text;
-                                int idUsuario =
-                                    1; //Suponiendo que hay un usuario logueado con id=1
 
-                                //Crear transacción
-                                Map<String, dynamic> nuevaTransaccion = {
-                                  'titulo_transaccion': titulo,
-                                  'fecha': fecha,
-                                  'categoria': selectedCategoria,
-                                  'importe': cantidad,
-                                  'divisaPrincipal': context
-                                      .read<ProviderAjustes>()
-                                      .divisaEnUso
-                                      .codigo_divisa,
-                                  'descripcion': descripcion.isNotEmpty
-                                      ? descripcion
-                                      : null,
-                                  'id_usuario': idUsuario,
-                                };
+                                //Crear la transacción
+                                //no paso el ID porque es autoincremental en el propio FireBase
+                                Transaccion transaccion = Transaccion(
+                                    id: 0,
+                                    tituloTransaccion: titulo,
+                                    fecha: DateTime.parse(fecha),
+                                    categoria: selectedCategoria!,
+                                    importe: cantidad,
+                                    divisa: context
+                                        .read<ProviderAjustes>()
+                                        .divisaEnUso,
+                                    descripcion: descripcion);
 
                                 //Insertar transacción en la base de datos
-                                await TransaccionDao()
-                                    .insertarTransaccion(nuevaTransaccion);
-
+                                await TransaccionDao().insertarTransaccion(
+                                    context.read<ProviderAjustes>().usuario!,
+                                    transaccion);
                                 context
                                     .read<ProviderAjustes>()
                                     .cargarTransacciones();

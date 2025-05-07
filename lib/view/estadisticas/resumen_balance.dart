@@ -31,16 +31,18 @@ class _BalanceTabState extends State<BalanceTab> {
   ///Cargar los datos desde la base de datos
   Future<void> _cargarDatos() async {
     final ingresosResult = await transaccionDao.obtenerTotalPorTipo(
-      tipo: 'Ingreso',
+      isIncome: true,
+      u: context.read<ProviderAjustes>().usuario!,
       filter: selectedFilter,
       year: selectedYear,
-      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
+      //actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
     );
     final gastosResult = await transaccionDao.obtenerTotalPorTipo(
-      tipo: 'Gasto',
+      isIncome: false,
+      u: context.read<ProviderAjustes>().usuario!,
       filter: selectedFilter,
       year: selectedYear,
-      actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
+      //actualCode: context.read<ProviderAjustes>().divisaEnUso.codigo_divisa,
     );
 
     setState(() {

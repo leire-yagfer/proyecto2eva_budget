@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/logindialog.dart';
+import 'package:proyecto2eva_budget/view/loginsignup/loginregister.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/signupdialog.dart';
 
 mixin LoginLogoutDialog {
@@ -44,7 +44,7 @@ mixin LoginLogoutDialog {
                 Navigator.of(context).pop();
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(builder: (context) => LoginSignupPage()),
                 );
               },
               child: Text(AppLocalizations.of(context)!.accept),

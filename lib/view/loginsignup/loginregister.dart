@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
-import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/mixinloginregisterlogout.dart';
 
 class LoginSignupPage extends StatefulWidget {
@@ -34,8 +33,7 @@ class _LoginSignupPageState extends State<LoginSignupPage>
           SizedBox(height: MediaQuery.of(context).size.height * 0.03),
           ReusableMainButton(
               onClick: () {
-                Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => MyHomePage()));
+                showRegisterDialog(context);
               },
               textButton: AppLocalizations.of(context)!.register,
               colorButton: 'buttonBlackWhite',

@@ -3,7 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/reusable/reusablemainbutton.dart';
 import 'package:proyecto2eva_budget/reusable/reusablerowloginregister.dart';
-import 'package:proyecto2eva_budget/view/principal.dart';
+import 'package:proyecto2eva_budget/view/home.dart';
 import 'package:proyecto2eva_budget/view/loginsignup/mixinloginregisterlogout.dart';
 import 'package:proyecto2eva_budget/viewmodel/themeprovider.dart';
 
@@ -93,7 +93,7 @@ class _LogInDialogState extends State<LogInDialog> with LoginLogoutDialog {
                 onClick: () {
                   Navigator.pop(context);
                   Navigator.pushReplacement(context,
-                      MaterialPageRoute(builder: (context) => Principal()));
+                      MaterialPageRoute(builder: (context) => MyHomePage()));
                 },
                 textButton: AppLocalizations.of(context)!.signin,
                 colorButton: 'buttonWhiteBlack',

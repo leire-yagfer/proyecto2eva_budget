@@ -1,34 +1,31 @@
+import 'package:flutter/services.dart';
+
 ///Clase que representa una categoría
 class Categoria {
   final String nombre;
   final String icono;
-  final String tipo;
-  final String colorcategoria;
+  final bool esingreso;
+  final Color
+      colorCategoria; //se juntarán los colores en un solo campo. En la BD se almacenará por partes como rgb, guardando en variables cr, cg y cb
 
-  Categoria({
-    required this.nombre,
-    required this.icono,
-    required this.tipo,
-    required this.colorcategoria
-  });
+  Categoria(
+      {required this.nombre,
+      required this.icono,
+      required this.esingreso,
+      required this.colorCategoria});
 
-  //Método para convertir un mapa (de la base de datos) a un objeto Categoria
-  factory Categoria.fromMap(Map<String, dynamic> map) {
+  //a partir de un mapa creo una categoría
+  static Categoria fromMap(Map<String, dynamic> map) {
     return Categoria(
       nombre: map['nombre'],
       icono: map['icono'],
-      tipo: map['tipo'],
-      colorcategoria: map['colorcategoria']
+      esingreso: map['esingreso'] == 1,
+      colorCategoria: Color.fromARGB(
+        255, //siempre opaco
+        map['cr'],
+        map['cg'],
+        map['cb'],
+      ),
     );
-  }
-
-  //Método para convertir un objeto Categoria a un mapa (para insertar en la base de datos)
-  Map<String, dynamic> toMap() {
-    return {
-      'nombre': nombre,
-      'icono': icono,
-      'tipo': tipo,
-      'colorcategoria': colorcategoria
-    };
   }
 }
