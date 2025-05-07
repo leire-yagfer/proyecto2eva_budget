@@ -97,6 +97,4 @@ class ProviderAjustes extends ChangeNotifier {
     this.usuario = null;
     notifyListeners();
   }
-
-  
 }

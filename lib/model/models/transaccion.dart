@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:proyecto2eva_budget/model/models/categoria.dart';
 import 'package:proyecto2eva_budget/model/models/divisa.dart';
 import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
@@ -28,7 +29,7 @@ class Transaccion {
     return Transaccion(
       id: map['id'],
       tituloTransaccion: map['title'],
-      fecha: map['datetime'],
+      fecha: (map['datetime'] as Timestamp).toDate(), //converitr timestamp a DateTime porque en FireBase es TimeStamp
       divisa: APIUtils.getFromList(map['currency'])!,
       categoria: Categoria.fromMap(map['categoria']),
       importe: map['import'],
