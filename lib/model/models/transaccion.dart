@@ -4,7 +4,7 @@ import 'package:proyecto2eva_budget/model/services/apicambiodivisa.dart';
 
 ///Clase que representa una transacción
 class Transaccion {
-  final int id;
+  final String id;
   final String tituloTransaccion;
   final DateTime fecha;
   final Divisa divisa;

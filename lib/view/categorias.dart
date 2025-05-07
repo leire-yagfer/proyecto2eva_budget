@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:proyecto2eva_budget/model/models/dao/categoriadao.dart';
-import 'package:proyecto2eva_budget/model/services/db_helper.dart';
 import 'package:proyecto2eva_budget/reusable/categorycard.dart';
 import 'package:proyecto2eva_budget/viewmodel/provider_ajustes.dart';
 import 'package:sqflite/sqflite.dart';
@@ -27,9 +26,9 @@ class _CategoriasState extends State<Categorias> {
 
   ///Método para cargar las categorías desde la base de datos
   Future<void> _cargarCategorias() async {
-    db = await DBHelper().abrirBD();
-    List<Categoria> categoriasDB =
-        await categoriaDao.obtenerCategorias(context.read<ProviderAjustes>().usuario!); //Obtiene las categorías del usuario actual
+    List<Categoria> categoriasDB = await categoriaDao.obtenerCategorias(context
+        .read<ProviderAjustes>()
+        .usuario!); //Obtiene las categorías del usuario actual
     //Se ordenan las categorías por tipo (ingreso o gasto)
     categoriasDB.sort((a, b) {
       if (a.esingreso && !b.esingreso) {

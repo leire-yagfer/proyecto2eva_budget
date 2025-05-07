@@ -30,8 +30,10 @@ class _MovimientosState extends State<Movimientos> {
   }
 
   ///Eliminar una transacción
-  Future<void> _eliminarTransaccion(int id, int index) async {
-    await transaccionCRUD.eliminarTransaccion(id);
+  Future<void> _eliminarTransaccion(int index) async {
+    await transaccionCRUD.eliminarTransaccion(
+        context.read<ProviderAjustes>().usuario!,
+        context.read<ProviderAjustes>().listaTransacciones[index]);
     context.read<ProviderAjustes>().listaTransacciones.removeAt(index);
     context.read<ProviderAjustes>().notifyListeners();
   }
@@ -140,7 +142,7 @@ class _MovimientosState extends State<Movimientos> {
                                   .palette()['fixedBlack']!),
                           iconSize: MediaQuery.of(context).size.width * 0.05,
                           onPressed: () {
-                            _eliminarTransaccion(transaccion.id, index);
+                            _eliminarTransaccion(index);
                           },
                         ),
                       ],

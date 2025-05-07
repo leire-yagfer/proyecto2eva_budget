@@ -2,12 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:proyecto2eva_budget/model/models/categoria.dart';
 import 'package:proyecto2eva_budget/model/models/transaccion.dart';
 import 'package:proyecto2eva_budget/model/models/usuario.dart';
-import 'package:proyecto2eva_budget/model/services/db_helper.dart';
 import 'package:proyecto2eva_budget/model/services/firebasedb.dart';
 
 ///Clase que gestiona transacciones en la base de datos
 class TransaccionDao {
-  final DBHelper dbHelper = DBHelper();
   CollectionReference data = Firebasedb.data;
 
   ///Método para insertar una transacción

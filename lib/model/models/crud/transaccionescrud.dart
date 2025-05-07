@@ -1,13 +1,9 @@
 import 'package:proyecto2eva_budget/model/models/usuario.dart';
-import 'package:proyecto2eva_budget/model/services/db_helper.dart';
 import 'package:proyecto2eva_budget/model/services/firebasedb.dart';
 import '../transaccion.dart';
-import 'package:sqflite/sqflite.dart';
 
 ///Clase que gestiona las transacciones en la base de datos
 class TransaccionCRUD {
-  DBHelper db = DBHelper();
-
   ///Obtener las transacciones ordenadas por fecha
   Future<List<Transaccion>> obtenerTransaccionesPorFecha(Usuario u) async {
     List<Transaccion> allTransacciones = [];
@@ -29,19 +25,19 @@ class TransaccionCRUD {
         transaccion["categoria"]["id"] =
             c.id; //le paso el ID de la categoria pq no lo pasa directamente
 
-        allTransacciones.add(Transaccion.fromMap(transaccion)); //método transacción que se encarga de crear la transacción a partir del mapa
+        allTransacciones.add(Transaccion.fromMap(
+            transaccion)); //método transacción que se encarga de crear la transacción a partir del mapa
       }
     }
     return allTransacciones;
   }
 
   ///Eliminar una transacción por ID
-  Future<void> eliminarTransaccion(int id) async {
-    Database database = await db.abrirBD(); //abre la base de datos
-    await database.delete(
-      'TRANSACCION', //el nombre de la tabla
-      where: 'id = ?', //filtro para eliminar la transacción por ID
-      whereArgs: [id], //el argumento que contiene el ID de la transacción
-    );
+  Future<void> eliminarTransaccion(Usuario u, Transaccion t) async {
+    var userRef = await Firebasedb.data.doc(u.id);
+    var categoryRef = userRef.collection("categories").doc(t.categoria.nombre);
+    var transaccionRef =
+        categoryRef.collection("transactions").doc(t.id); //ID de la transacción
+    await transaccionRef.delete(); //eliminar la transacción
   }
 }

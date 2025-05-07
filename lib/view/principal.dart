@@ -250,7 +250,7 @@ class Principal extends StatelessWidget {
                                 //Crear la transacción
                                 //no paso el ID porque es autoincremental en el propio FireBase
                                 Transaccion transaccion = Transaccion(
-                                    id: 0,
+                                    id: "",
                                     tituloTransaccion: titulo,
                                     fecha: DateTime.parse(fecha),
                                     categoria: selectedCategoria!,

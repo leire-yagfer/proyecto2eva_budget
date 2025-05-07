@@ -181,4 +181,95 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
           ))),
     );
   }
+
+  /*
+  Future<void> _register() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      try {
+        // Check if Firestore is available
+        if (firestore == null) {
+          throw Exception(
+              "Firebase is not properly initialized. Please restart the app.");
+        }
+
+        // Create the user account
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+
+        // Save credentials for auto-login (always enabled)
+        await _authService.saveCredentials(_emailController.text.trim(),
+            _passwordController.text.trim(), false // No biometrics by default
+            );
+
+        // Get the user's UID
+        final String uid = userCredential.user!.uid;
+
+        // Create a user document in Firestore
+        try {
+          await firestore!.collection('navera_data').doc(uid).set({
+            'email': _emailController.text.trim(),
+            'createdAt': FieldValue.serverTimestamp(),
+            'location': countriesNames[countryIndex],
+            'lastLogin': FieldValue.serverTimestamp(),
+          });
+          context.read<UserDataProvider>().logIn(UserData(
+              uid: uid,
+              userLoc: countriesNames[countryIndex],
+              userEmail: _emailController.text.trim()));
+        } catch (firestoreError) {
+          Logger().e(firestoreError);
+          // Continue with registration even if Firestore fails
+        }
+      } on FirebaseAuthException catch (e) {
+        String errorMsg = 'Registration failed';
+
+        // More user-friendly error messages
+        switch (e.code) {
+          case 'email-already-in-use':
+            errorMsg = 'An account already exists with this email';
+            break;
+          case 'invalid-email':
+            errorMsg = 'Invalid email format';
+            break;
+          case 'weak-password':
+            errorMsg = 'Password is too weak, please use a stronger password';
+            break;
+          case 'operation-not-allowed':
+            errorMsg = 'Email/password registration is not enabled';
+            break;
+          default:
+            errorMsg = e.message ?? 'Registration failed';
+        }
+
+        setState(() {
+          _errorMessage = errorMsg;
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'Error creating account: $e';
+        });
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        setState(() {
+          _errorMessage = "Can't leave any blank space";
+        });
+      });
+    }
+  }
+   */
 }
