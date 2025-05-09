@@ -63,6 +63,7 @@ class _SignupDialogState extends State<SignupDialog> with LoginLogoutDialog {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextFormField(
+                    keyboardType: TextInputType.emailAddress,
                     key: _emailKey,
                     controller: _emailController,
                     decoration: InputDecoration(

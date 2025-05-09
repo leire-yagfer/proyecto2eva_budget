@@ -8,7 +8,7 @@ class TransaccionCRUD {
   
 
   //Este tiene el orderBy, pero que yo lo hago en el provider con el sort
-  /*Future<List<Transaccion>> obtenerTransaccionesPorFecha(Usuario u) async {
+  Future<List<Transaccion>> obtenerTransaccionesPorFecha(Usuario u) async {
     List<Transaccion> allTransacciones = [];
     var userdata = await Firebasedb.data.doc(u.id).get(); //obtengo el usuario
 
@@ -40,8 +40,8 @@ class TransaccionCRUD {
     }
 
     return allTransacciones;
-  }*/
-  
+  }
+  /*
   Future<List<Transaccion>> obtenerTransaccionesPorFecha(Usuario u) async {
     List<Transaccion> allTransacciones = [];
     var userdata = await Firebasedb.data.doc(u.id).get(); //obtengo el usuario
@@ -67,7 +67,7 @@ class TransaccionCRUD {
       }
     }
     return allTransacciones;
-  }
+  }*/
 
   ///Eliminar una transacción por ID
   Future<void> eliminarTransaccion(Usuario u, Transaccion t) async {

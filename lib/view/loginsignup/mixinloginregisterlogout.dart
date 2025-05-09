@@ -41,8 +41,9 @@ mixin LoginLogoutDialog {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop();
-                Navigator.pushReplacement(
+                Navigator.of(context).pop(); //sale del diálogo
+                Navigator.of(context).pop(); //sale de la página actual
+                Navigator.pushReplacement( //vuelve a la página de inicio
                   context,
                   MaterialPageRoute(builder: (context) => LoginSignupPage()),
                 );

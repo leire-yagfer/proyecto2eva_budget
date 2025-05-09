@@ -47,6 +47,7 @@ class _LogInDialogState extends State<LogInDialog> with LoginLogoutDialog {
             mainAxisSize: MainAxisSize.min,
             children: [
               TextFormField(
+                keyboardType: TextInputType.emailAddress,
                 controller: _usernameController,
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.email,
@@ -160,11 +161,12 @@ class _LogInDialogState extends State<LogInDialog> with LoginLogoutDialog {
           email: _usernameController.text.trim(),
           password: _passwordController.text.trim(),
         );
-
+        
         // Save credentials for auto-login (always enabled)
         await _authService.saveCredentials(_usernameController.text.trim(),
             _passwordController.text.trim(), false // No biometrics by default
             );
+            
 
         if (mounted) {
           // Use Future.microtask to avoid navigation during build
